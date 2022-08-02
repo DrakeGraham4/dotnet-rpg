@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace dotnet_rpg.Models
+namespace dotnet_rpg.Dtos.Character
 {
-    public class Character
+    public class AddCharacterDto
     {
-        public int Id { get; set; }
+        //Want to send every property but the Id to the service
         public string Name { get; set; } = "Frodo";
         public int HitPoints { get; set; } = 100;
         public int Strength { get; set; } = 10;

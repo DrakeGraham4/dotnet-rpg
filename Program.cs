@@ -1,4 +1,5 @@
 global using dotnet_rpg.Models;
+using dotnet_rpg.Services.CharacterService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,9 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
+// Now Web Api knows it has to use the CharacterService class whenever a controller wants to inject the ICharacterService
+builder.Services.AddScoped<ICharacterService, CharacterService>();
 
 var app = builder.Build();
 
