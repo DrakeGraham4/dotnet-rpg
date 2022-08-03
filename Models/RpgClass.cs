@@ -5,7 +5,7 @@ namespace dotnet_rpg.Models
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum RpgClass
     {
-        Hobbit = 1,
+        Halfling = 1,
         Mage = 2,
         Cleric = 3
     }
