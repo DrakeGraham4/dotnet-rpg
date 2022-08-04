@@ -1,18 +1,23 @@
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace dotnet_rpg.Data
 {
     public class AuthRepository : IAuthRepository
     {
         private readonly DataContext _context;
+        private readonly IConfiguration _configuration;
 
-        public AuthRepository(DataContext context)
+        public AuthRepository(DataContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
         public async Task<ServiceResponse<string>> Login(string username, string password)
         {
@@ -37,7 +42,7 @@ namespace dotnet_rpg.Data
             //If everything is correct
             else
             {
-                response.Data = user.Id.ToString();
+                response.Data = CreateToken(user);
             }
             return response;
         }
@@ -93,6 +98,34 @@ namespace dotnet_rpg.Data
                 //This computed hash value will be compared with the password hash from the db byte by byte (really check the content of the array, no =)
                 return computeHash.SequenceEqual(passwordHash);
             }
+        }
+
+        private string CreateToken(User user)
+        {
+            List<Claim> claims = new List<Claim> {
+                //First claim type is the claim types name identifier, the id of the given user
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                //Second claim type is the claim name, the username of the user
+                new Claim(ClaimTypes.Name, user.Username)
+            };
+
+            SymmetricSecurityKey key = new SymmetricSecurityKey(System.Text.Encoding.UTF8
+                .GetBytes(_configuration.GetSection("AppSettings:Token").Value));
+
+            SigningCredentials creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+
+            SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.Now.AddDays(1),
+                SigningCredentials = creds
+            };
+
+            //New JWT security token handler, used to create security token
+            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+            SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
+            
+            return tokenHandler.WriteToken(token); 
         }
     }
 }
