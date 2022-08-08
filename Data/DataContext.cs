@@ -16,5 +16,6 @@ namespace dotnet_rpg.Data
         //Able to query and save RpgCharacters. The name of the DbSet will be the name of the corresponding database table (characters). Whenever you want to see a representation of your model in the database you have to add a DbSet of that model. That's how Entity knows what tables it should use
         public DbSet<Character> Characters { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Weapon> Weapons { get; set; }
     }
 }
